@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "daymatch",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -15,10 +16,15 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.daymatch.app",
+      "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "위치 기반 일자리 검색을 위해 위치 권한이 필요합니다.",
         "NSCameraUsageDescription": "프로필 사진 및 일자리 이미지 촬영을 위해 카메라 권한이 필요합니다.",
-        "NSPhotoLibraryUsageDescription": "프로필 사진 및 일자리 이미지 업로드를 위해 사진 라이브러리 권한이 필요합니다."
+        "NSPhotoLibraryUsageDescription": "프로필 사진 및 일자리 이미지 업로드를 위해 사진 라이브러리 권한이 필요합니다.",
+        "UIBackgroundModes": ["remote-notification"]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
@@ -27,13 +33,20 @@
         "backgroundColor": "#4F46E5"
       },
       "package": "com.daymatch.app",
+      "versionCode": 1,
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ]
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ],
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
@@ -46,14 +59,25 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#4F46E5"
+          "color": "#4F46E5",
+          "sounds": ["./assets/notification-sound.wav"]
         }
-      ]
+      ],
+      "expo-splash-screen"
     ],
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 30000
+    },
     "extra": {
       "eas": {
         "projectId": "your-project-id"
       }
+    },
+    "owner": "daymatch",
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }

@@ -3,12 +3,16 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Match, MatchStatus } from './entities/match.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/entities/notification.entity';
+import { PaymentsService } from '../payments/payments.service';
+import { LoggerService } from '../common/logger/logger.service';
 
 @Injectable()
 export class MatchesService {
@@ -16,6 +20,9 @@ export class MatchesService {
     @InjectRepository(Match)
     private matchRepository: Repository<Match>,
     private notificationsService: NotificationsService,
+    @Inject(forwardRef(() => PaymentsService))
+    private paymentsService: PaymentsService,
+    private logger: LoggerService,
   ) {}
 
   async create(
@@ -34,7 +41,9 @@ export class MatchesService {
       status: MatchStatus.CONFIRMED,
     });
 
-    return this.matchRepository.save(match);
+    const saved = await this.matchRepository.save(match);
+    this.logger.log(`Match created: ${saved.id}`, 'MatchesService');
+    return saved;
   }
 
   async findById(id: string): Promise<Match> {
@@ -58,6 +67,13 @@ export class MatchesService {
     });
   }
 
+  async findByJobId(jobId: string): Promise<Match | null> {
+    return this.matchRepository.findOne({
+      where: { jobId },
+      relations: ['job', 'helper', 'requester'],
+    });
+  }
+
   async start(id: string, helperId: string): Promise<Match> {
     const match = await this.findById(id);
 
@@ -73,12 +89,14 @@ export class MatchesService {
     match.helperStartedAt = new Date();
     await this.matchRepository.save(match);
 
+    this.logger.log(`Match started: ${match.id}`, 'MatchesService');
+
     // Notify requester
     await this.notificationsService.create({
       userId: match.requesterId,
-      type: NotificationType.WORK_STARTED,
+      type: NotificationType.MATCH_STARTED,
       title: '작업 시작',
-      body: `${match.job.title} 작업이 시작되었습니다`,
+      body: `${match.job?.title || '일자리'} 작업이 시작되었습니다`,
       referenceType: 'match',
       referenceId: match.id,
     });
@@ -100,12 +118,14 @@ export class MatchesService {
     match.helperCompletedAt = new Date();
     await this.matchRepository.save(match);
 
+    this.logger.log(`Match completed by helper: ${match.id}`, 'MatchesService');
+
     // Notify requester
     await this.notificationsService.create({
       userId: match.requesterId,
-      type: NotificationType.WORK_COMPLETED,
+      type: NotificationType.MATCH_COMPLETED,
       title: '작업 완료 확인 요청',
-      body: `${match.job.title} 작업 완료를 확인해주세요`,
+      body: `${match.job?.title || '일자리'} 작업 완료를 확인해주세요`,
       referenceType: 'match',
       referenceId: match.id,
     });
@@ -129,12 +149,38 @@ export class MatchesService {
     match.completedAt = new Date();
     await this.matchRepository.save(match);
 
-    // TODO: Trigger payment release
+    this.logger.log(`Match confirmed by requester: ${match.id}`, 'MatchesService');
+
+    // Trigger payment release
+    try {
+      const payment = await this.paymentsService.findByMatchId(match.id);
+      if (payment) {
+        await this.paymentsService.release(payment.id);
+        this.logger.log(`Payment released for match: ${match.id}`, 'MatchesService');
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to release payment for match ${match.id}: ${error.message}`,
+        error.stack,
+        'MatchesService',
+      );
+      // Don't throw - match is already confirmed, payment release can be retried
+    }
+
+    // Notify helper
+    await this.notificationsService.create({
+      userId: match.helperId,
+      type: NotificationType.MATCH_COMPLETED,
+      title: '작업 완료 확인',
+      body: `${match.job?.title || '일자리'} 작업이 완료 확인되었습니다. 리뷰를 남겨주세요!`,
+      referenceType: 'match',
+      referenceId: match.id,
+    });
 
     return match;
   }
 
-  async cancel(id: string, userId: string): Promise<Match> {
+  async cancel(id: string, userId: string, reason?: string): Promise<Match> {
     const match = await this.findById(id);
 
     if (match.helperId !== userId && match.requesterId !== userId) {
@@ -146,32 +192,94 @@ export class MatchesService {
     }
 
     // Check cancellation policy (24 hours before work date)
-    const workDate = new Date(match.job.workDate);
-    const now = new Date();
-    const hoursUntilWork =
-      (workDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    const scheduledDate = match.job?.scheduledDate;
+    if (scheduledDate) {
+      const workDate = new Date(scheduledDate);
+      const now = new Date();
+      const hoursUntilWork =
+        (workDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    if (hoursUntilWork < 24 && match.status === MatchStatus.IN_PROGRESS) {
-      throw new BadRequestException(
-        '작업 시작 24시간 전부터는 취소할 수 없습니다',
-      );
+      if (hoursUntilWork < 24 && match.status === MatchStatus.IN_PROGRESS) {
+        throw new BadRequestException(
+          '작업 시작 24시간 전부터는 취소할 수 없습니다',
+        );
+      }
     }
 
     match.status = MatchStatus.CANCELLED;
+    match.cancelledAt = new Date();
+    match.cancelReason = reason;
+    match.cancelledBy = userId;
     await this.matchRepository.save(match);
+
+    this.logger.log(`Match cancelled: ${match.id} by user: ${userId}`, 'MatchesService');
+
+    // Handle refund if payment was made
+    try {
+      const payment = await this.paymentsService.findByMatchId(match.id);
+      if (payment && (payment.status === 'paid' || payment.status === 'held')) {
+        await this.paymentsService.refund(payment.id, match.requesterId, reason || '매칭 취소');
+        this.logger.log(`Payment refunded for cancelled match: ${match.id}`, 'MatchesService');
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to refund payment for match ${match.id}: ${error.message}`,
+        error.stack,
+        'MatchesService',
+      );
+    }
 
     // Notify the other party
     const notifyUserId =
       userId === match.helperId ? match.requesterId : match.helperId;
     await this.notificationsService.create({
       userId: notifyUserId,
-      type: NotificationType.SYSTEM,
+      type: NotificationType.MATCH_CANCELLED,
       title: '매칭 취소',
-      body: `${match.job.title} 매칭이 취소되었습니다`,
+      body: `${match.job?.title || '일자리'} 매칭이 취소되었습니다`,
       referenceType: 'match',
       referenceId: match.id,
     });
 
     return match;
+  }
+
+  async getStatsByUserId(
+    userId: string,
+  ): Promise<{
+    totalMatches: number;
+    completedAsHelper: number;
+    completedAsRequester: number;
+    cancelledCount: number;
+  }> {
+    const [
+      totalMatches,
+      completedAsHelper,
+      completedAsRequester,
+      cancelledCount,
+    ] = await Promise.all([
+      this.matchRepository.count({
+        where: [{ helperId: userId }, { requesterId: userId }],
+      }),
+      this.matchRepository.count({
+        where: { helperId: userId, status: MatchStatus.COMPLETED },
+      }),
+      this.matchRepository.count({
+        where: { requesterId: userId, status: MatchStatus.COMPLETED },
+      }),
+      this.matchRepository.count({
+        where: [
+          { helperId: userId, status: MatchStatus.CANCELLED },
+          { requesterId: userId, status: MatchStatus.CANCELLED },
+        ],
+      }),
+    ]);
+
+    return {
+      totalMatches,
+      completedAsHelper,
+      completedAsRequester,
+      cancelledCount,
+    };
   }
 }

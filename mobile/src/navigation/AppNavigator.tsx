@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useRef } from 'react';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useAppDispatch, useAppSelector } from '../store';
@@ -7,6 +7,7 @@ import { restoreAuth } from '../store/slices/authSlice';
 import AuthStack from './AuthStack';
 import MainTabs from './MainTabs';
 import { colors } from '../theme';
+import notificationService from '../services/notificationService';
 
 // Screens
 import JobDetailScreen from '../screens/job/JobDetailScreen';
@@ -47,10 +48,38 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const AppNavigator: React.FC = () => {
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const navigationRef = useRef<NavigationContainerRef<RootStackParamList>>(null);
 
   useEffect(() => {
     dispatch(restoreAuth());
   }, [dispatch]);
+
+  // Initialize push notifications when authenticated
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Initialize notifications
+    notificationService.initialize();
+
+    // Setup listeners
+    const cleanup = notificationService.setupListeners(
+      // onNotificationReceived - when app is in foreground
+      (notification) => {
+        console.log('Notification received in foreground:', notification);
+      },
+      // onNotificationResponse - when user taps notification
+      (response) => {
+        const navigate = (screen: string, params?: any) => {
+          if (navigationRef.current) {
+            navigationRef.current.navigate(screen as any, params);
+          }
+        };
+        notificationService.handleNotificationNavigation(response, navigate);
+      },
+    );
+
+    return cleanup;
+  }, [isAuthenticated]);
 
   if (isLoading) {
     return (
@@ -61,7 +90,7 @@ export const AppNavigator: React.FC = () => {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>

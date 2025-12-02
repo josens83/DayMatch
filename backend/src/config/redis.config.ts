@@ -99,8 +99,12 @@ export class RedisService {
   }
 
   // Online users tracking
-  async setUserOnline(userId: string): Promise<void> {
-    await this.client.sadd('online_users', userId);
+  async setUserOnline(userId: string, online: boolean = true): Promise<void> {
+    if (online) {
+      await this.client.sadd('online_users', userId);
+    } else {
+      await this.client.srem('online_users', userId);
+    }
   }
 
   async setUserOffline(userId: string): Promise<void> {

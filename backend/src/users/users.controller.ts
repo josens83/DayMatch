@@ -3,10 +3,13 @@ import {
   Get,
   Patch,
   Post,
+  Delete,
   Body,
   Param,
   UseGuards,
   ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,6 +20,11 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { HelperProfileDto } from './dto/helper-profile.dto';
+import {
+  RegisterPushTokenDto,
+  UnregisterPushTokenDto,
+  SetPushEnabledDto,
+} from './dto/push-token.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from './entities/user.entity';
@@ -56,6 +64,44 @@ export class UsersController {
     @Body() helperProfileDto: HelperProfileDto,
   ) {
     return this.usersService.activateHelperProfile(user.id, helperProfileDto);
+  }
+
+  @Post('push-token')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '푸시 토큰 등록' })
+  @ApiResponse({ status: 200, description: '등록 성공' })
+  async registerPushToken(
+    @CurrentUser() user: User,
+    @Body() dto: RegisterPushTokenDto,
+  ) {
+    await this.usersService.registerPushToken(user.id, dto.token, dto.platform);
+    return { success: true, message: '푸시 토큰이 등록되었습니다' };
+  }
+
+  @Delete('push-token')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '푸시 토큰 삭제' })
+  @ApiResponse({ status: 200, description: '삭제 성공' })
+  async unregisterPushToken(
+    @CurrentUser() user: User,
+    @Body() dto: UnregisterPushTokenDto,
+  ) {
+    await this.usersService.unregisterPushToken(user.id, dto.token);
+    return { success: true, message: '푸시 토큰이 삭제되었습니다' };
+  }
+
+  @Patch('push-settings')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '푸시 알림 설정 변경' })
+  @ApiResponse({ status: 200, description: '설정 변경 성공' })
+  async setPushEnabled(
+    @CurrentUser() user: User,
+    @Body() dto: SetPushEnabledDto,
+  ) {
+    await this.usersService.setPushEnabled(user.id, dto.enabled);
+    return { success: true, enabled: dto.enabled };
   }
 
   @Get(':id')

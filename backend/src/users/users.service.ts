@@ -110,4 +110,36 @@ export class UsersService {
 
     await this.userRepository.save(user);
   }
+
+  async registerPushToken(
+    userId: string,
+    token: string,
+    platform: 'ios' | 'android',
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      deviceToken: token,
+      deviceType: platform,
+      pushEnabled: true,
+    });
+  }
+
+  async unregisterPushToken(userId: string, token: string): Promise<void> {
+    const user = await this.findById(userId);
+    // Only clear if the token matches (to avoid race conditions with multiple devices)
+    if (user.deviceToken === token) {
+      await this.userRepository.update(userId, {
+        deviceToken: null,
+      });
+    }
+  }
+
+  async setPushEnabled(userId: string, enabled: boolean): Promise<void> {
+    await this.userRepository.update(userId, {
+      pushEnabled: enabled,
+    });
+  }
+
+  async findByDeviceToken(deviceToken: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { deviceToken } });
+  }
 }

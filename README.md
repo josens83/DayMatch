@@ -47,10 +47,13 @@ DayMatch/
 │   │   ├── notifications/  # 알림 모듈
 │   │   ├── categories/     # 카테고리 모듈
 │   │   ├── uploads/        # 파일 업로드 모듈
+│   │   ├── config/         # 설정 파일
+│   │   ├── migrations/     # DB 마이그레이션
 │   │   └── common/         # 공통 유틸리티
+│   ├── test/               # E2E 테스트
 │   ├── Dockerfile
 │   └── package.json
-├── mobile/                  # React Native App
+├── mobile/                  # React Native App (Expo)
 │   ├── src/
 │   │   ├── components/     # UI 컴포넌트
 │   │   ├── screens/        # 화면 컴포넌트
@@ -59,10 +62,27 @@ DayMatch/
 │   │   ├── store/          # Redux Store
 │   │   ├── theme/          # 디자인 시스템
 │   │   ├── hooks/          # Custom Hooks
-│   │   ├── utils/          # 유틸리티 함수
-│   │   └── types/          # TypeScript 타입
+│   │   └── utils/          # 유틸리티 함수
+│   ├── assets/             # 앱 아이콘/스플래시
 │   ├── App.tsx
+│   ├── eas.json            # EAS Build 설정
 │   └── package.json
+├── admin/                   # React Admin Dashboard
+│   ├── src/
+│   │   ├── components/     # UI 컴포넌트
+│   │   ├── pages/          # 페이지 컴포넌트
+│   │   ├── services/       # API 서비스
+│   │   └── hooks/          # Custom Hooks
+│   └── package.json
+├── infrastructure/          # Terraform Infrastructure
+│   └── terraform/
+│       ├── main.tf         # 메인 인프라
+│       ├── ecs.tf          # ECS 설정
+│       ├── alb.tf          # ALB 설정
+│       ├── secrets.tf      # Secrets Manager
+│       ├── monitoring.tf   # CloudWatch 모니터링
+│       ├── autoscaling.tf  # Auto Scaling
+│       └── ssl.tf          # SSL/TLS 설정
 ├── docker-compose.yml       # Production Docker Compose
 ├── docker-compose.dev.yml   # Development Docker Compose
 └── .github/workflows/       # CI/CD 설정
@@ -152,6 +172,111 @@ docker-compose up -d
 - 에스크로 방식 (결제 → 보관 → 정산)
 - 플랫폼 수수료: 10%
 - PG사: 토스페이먼츠 연동
+
+## 테스트
+
+### Backend 테스트
+
+```bash
+cd backend
+
+# Unit 테스트
+npm run test
+
+# E2E 테스트
+npm run test:e2e
+
+# 테스트 커버리지
+npm run test:cov
+```
+
+### Mobile 테스트
+
+```bash
+cd mobile
+
+# Jest 테스트
+npm run test
+```
+
+## 배포
+
+### 인프라 배포 (Terraform)
+
+```bash
+cd infrastructure/terraform
+
+# 초기화
+terraform init
+
+# 계획
+terraform plan -var-file="production.tfvars"
+
+# 적용
+terraform apply -var-file="production.tfvars"
+```
+
+### Backend 배포 (ECS)
+
+GitHub main 브랜치에 push하면 자동으로 배포됩니다.
+
+```bash
+git push origin main
+```
+
+### Mobile 배포 (Expo EAS)
+
+```bash
+cd mobile
+
+# 개발 빌드
+eas build --profile development --platform all
+
+# 프로덕션 빌드
+eas build --profile production --platform all
+
+# 앱스토어 제출
+eas submit --platform ios
+eas submit --platform android
+```
+
+## 환경 변수
+
+### Backend (.env)
+
+```env
+# App
+NODE_ENV=production
+PORT=3000
+
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=daymatch
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=daymatch
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# JWT
+JWT_SECRET=your_jwt_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+
+# AWS
+AWS_REGION=ap-northeast-2
+S3_BUCKET=daymatch-uploads
+
+# Payments
+TOSS_CLIENT_KEY=your_client_key
+TOSS_SECRET_KEY=your_secret_key
+
+# Firebase (Push Notifications)
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY=your_private_key
+FIREBASE_CLIENT_EMAIL=your_client_email
+```
 
 ## 라이선스
 

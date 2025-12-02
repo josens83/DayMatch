@@ -1,0 +1,30 @@
+# DayMatch Production Environment Variables
+# Copy this file to production.tfvars and fill in actual values
+
+aws_region  = "ap-northeast-2"
+environment = "production"
+app_name    = "daymatch"
+
+# Database
+db_password = "your-secure-database-password"
+db_username = "daymatch"
+
+# JWT Secrets (use strong random strings)
+jwt_secret         = "your-jwt-secret-min-32-chars-long"
+jwt_refresh_secret = "your-jwt-refresh-secret-min-32-chars"
+
+# Toss Payments (from Toss Developer Console)
+toss_client_key = "test_ck_..."
+toss_secret_key = "test_sk_..."
+
+# Firebase (from Firebase Console > Project Settings > Service Accounts)
+firebase_project_id   = "your-firebase-project-id"
+firebase_private_key  = "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+firebase_client_email = "firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com"
+
+# SMS Service (e.g., NHN Cloud, Twilio, etc.)
+sms_api_key    = "your-sms-api-key"
+sms_api_secret = "your-sms-api-secret"
+
+# ACM Certificate ARN for HTTPS (create in AWS Certificate Manager)
+acm_certificate_arn = "arn:aws:acm:ap-northeast-2:123456789012:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
