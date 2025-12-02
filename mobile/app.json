@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "DayMatch",
+    "slug": "daymatch",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#4F46E5"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.daymatch.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "위치 기반 일자리 검색을 위해 위치 권한이 필요합니다.",
+        "NSCameraUsageDescription": "프로필 사진 및 일자리 이미지 촬영을 위해 카메라 권한이 필요합니다.",
+        "NSPhotoLibraryUsageDescription": "프로필 사진 및 일자리 이미지 업로드를 위해 사진 라이브러리 권한이 필요합니다."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4F46E5"
+      },
+      "package": "com.daymatch.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "위치 기반 일자리 검색을 위해 위치 권한이 필요합니다."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#4F46E5"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    }
+  }
+}

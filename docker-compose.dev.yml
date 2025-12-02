@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (Development)
+  postgres:
+    image: postgres:15-alpine
+    container_name: daymatch-postgres-dev
+    environment:
+      POSTGRES_DB: daymatch
+      POSTGRES_USER: daymatch_user
+      POSTGRES_PASSWORD: daymatch_dev_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - daymatch-dev-network
+
+  # Redis Cache (Development)
+  redis:
+    image: redis:7-alpine
+    container_name: daymatch-redis-dev
+    command: redis-server --requirepass redis_dev_password
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - daymatch-dev-network
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  daymatch-dev-network:
+    driver: bridge
