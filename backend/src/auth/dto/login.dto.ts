@@ -1,5 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty, IsString, IsOptional, IsIn } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
@@ -11,4 +11,14 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty({ message: '비밀번호는 필수입니다' })
   password: string;
+
+  @ApiPropertyOptional({ description: 'FCM device token for push notifications' })
+  @IsOptional()
+  @IsString()
+  deviceToken?: string;
+
+  @ApiPropertyOptional({ enum: ['ios', 'android'] })
+  @IsOptional()
+  @IsIn(['ios', 'android'])
+  deviceType?: 'ios' | 'android';
 }

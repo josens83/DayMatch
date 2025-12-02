@@ -1,33 +1,42 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import HomeScreen from '../screens/main/HomeScreen';
 import SearchScreen from '../screens/main/SearchScreen';
 import MyPageScreen from '../screens/main/MyPageScreen';
+import ChatListScreen from '../screens/chat/ChatListScreen';
 import { colors, typography } from '../theme';
 
 export type MainTabsParamList = {
   Home: undefined;
-  Search: { categoryId?: number };
+  Search: { categoryId?: string };
   Create: undefined;
-  Chat: undefined;
+  ChatList: undefined;
   MyPage: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 
-// Placeholder screens
-const CreateScreen = () => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>일 등록 화면</Text>
-  </View>
-);
+// Create button that navigates to JobCreate screen
+const CreateTabButton: React.FC<{ children: React.ReactNode; onPress?: () => void }> = ({
+  children,
+  onPress,
+}) => {
+  const navigation = useNavigation<any>();
 
-const ChatScreen = () => (
-  <View style={styles.placeholder}>
-    <Text style={styles.placeholderText}>채팅 목록 화면</Text>
-  </View>
-);
+  return (
+    <TouchableOpacity
+      style={styles.createButton}
+      onPress={() => navigation.navigate('JobCreate')}
+      activeOpacity={0.8}
+    >
+      {children}
+    </TouchableOpacity>
+  );
+};
+
+const EmptyComponent = () => null;
 
 const TabIcon: React.FC<{ icon: string; focused: boolean }> = ({
   icon,
@@ -82,19 +91,24 @@ export const MainTabs: React.FC = () => {
       />
       <Tab.Screen
         name="Create"
-        component={CreateScreen}
+        component={EmptyComponent}
         options={{
           title: '등록',
-          headerTitle: '일 등록하기',
           tabBarIcon: ({ focused }) => <TabIcon icon="➕" focused={focused} />,
+          tabBarButton: (props) => <CreateTabButton {...props} />,
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+          },
         }}
       />
       <Tab.Screen
-        name="Chat"
-        component={ChatScreen}
+        name="ChatList"
+        component={ChatListScreen}
         options={{
           title: '채팅',
-          headerTitle: '채팅',
+          headerShown: false,
           tabBarIcon: ({ focused }) => <TabIcon icon="💬" focused={focused} />,
         }}
       />
@@ -103,7 +117,7 @@ export const MainTabs: React.FC = () => {
         component={MyPageScreen}
         options={{
           title: '마이',
-          headerTitle: '마이페이지',
+          headerShown: false,
           tabBarIcon: ({ focused }) => <TabIcon icon="👤" focused={focused} />,
         }}
       />
@@ -112,21 +126,16 @@ export const MainTabs: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  placeholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-  placeholderText: {
-    ...typography.h4,
-    color: colors.textSecondary,
-  },
   tabIcon: {
     fontSize: 22,
   },
   tabIconFocused: {
     transform: [{ scale: 1.1 }],
+  },
+  createButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -23,6 +23,9 @@ export class Payment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'order_id', unique: true, nullable: true })
+  orderId: string;
+
   @Column({ name: 'match_id' })
   matchId: string;
 
@@ -73,6 +76,12 @@ export class Payment {
 
   @Column({ name: 'refunded_at', type: 'timestamp', nullable: true })
   refundedAt: Date;
+
+  @Column({ name: 'receipt_url', length: 500, nullable: true })
+  receiptUrl: string;
+
+  @Column({ name: 'refund_reason', length: 500, nullable: true })
+  refundReason: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

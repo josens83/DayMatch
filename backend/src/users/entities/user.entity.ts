@@ -113,6 +113,15 @@ export class User {
   @Exclude()
   refreshToken: string;
 
+  @Column({ name: 'device_token', nullable: true })
+  deviceToken: string;
+
+  @Column({ name: 'device_type', nullable: true })
+  deviceType: 'ios' | 'android';
+
+  @Column({ name: 'push_enabled', default: true })
+  pushEnabled: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

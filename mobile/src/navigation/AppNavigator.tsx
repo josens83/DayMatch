@@ -8,7 +8,41 @@ import AuthStack from './AuthStack';
 import MainTabs from './MainTabs';
 import { colors } from '../theme';
 
-const Stack = createNativeStackNavigator();
+// Screens
+import JobDetailScreen from '../screens/job/JobDetailScreen';
+import JobCreateScreen from '../screens/job/JobCreateScreen';
+import ChatRoomScreen from '../screens/chat/ChatRoomScreen';
+import NotificationsScreen from '../screens/notifications/NotificationsScreen';
+import ProfileEditScreen from '../screens/profile/ProfileEditScreen';
+import PaymentScreen from '../screens/payment/PaymentScreen';
+import ApplicationListScreen from '../screens/application/ApplicationListScreen';
+
+export type RootStackParamList = {
+  Main: undefined;
+  Auth: undefined;
+  JobDetail: { jobId: string };
+  JobCreate: undefined;
+  JobEdit: { jobId: string };
+  ChatRoom: {
+    chatRoomId?: string;
+    jobId: string;
+    otherUser: {
+      id: string;
+      nickname: string;
+      profileImage?: string;
+    };
+  };
+  Notifications: undefined;
+  ProfileEdit: undefined;
+  UserProfile: { userId: string };
+  Payment: { matchId: string };
+  PaymentDetail: { paymentId: string };
+  ApplicationList: { jobId: string };
+  ApplicationDetail: { applicationId: string };
+  MatchDetail: { matchId: string };
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export const AppNavigator: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -30,7 +64,49 @@ export const AppNavigator: React.FC = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <Stack.Screen name="Main" component={MainTabs} />
+          <>
+            <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen
+              name="JobDetail"
+              component={JobDetailScreen}
+              options={{ animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="JobCreate"
+              component={JobCreateScreen}
+              options={{ animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="JobEdit"
+              component={JobCreateScreen}
+              options={{ animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="ChatRoom"
+              component={ChatRoomScreen}
+              options={{ animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+              options={{ animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="ProfileEdit"
+              component={ProfileEditScreen}
+              options={{ animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="Payment"
+              component={PaymentScreen}
+              options={{ animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="ApplicationList"
+              component={ApplicationListScreen}
+              options={{ animation: 'slide_from_right' }}
+            />
+          </>
         ) : (
           <Stack.Screen name="Auth" component={AuthStack} />
         )}
