@@ -86,3 +86,6 @@ api.interceptors.response.use(
 );
 
 export default api;
+
+// Named export for backward compatibility
+export { api };
