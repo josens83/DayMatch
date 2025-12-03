@@ -1,5 +1,79 @@
 # DayMatch 배포 가이드
 
+## 🚀 간편 배포 (GitHub + Cloud Services)
+
+로컬 환경 없이 GitHub와 클라우드 서비스만으로 배포하는 방법입니다.
+
+### 필요한 서비스 가입
+
+| 서비스 | 용도 | 가입 URL |
+|--------|------|----------|
+| Railway | Backend API 호스팅 | https://railway.app |
+| Vercel | Admin 대시보드 호스팅 | https://vercel.com |
+| Expo | 모바일 앱 빌드 | https://expo.dev |
+| Supabase | PostgreSQL + Redis | https://supabase.com |
+
+### 1단계: Railway 설정 (Backend)
+
+1. https://railway.app 가입 (GitHub 연동)
+2. "New Project" → "Deploy from GitHub repo" 선택
+3. `josens83/DayMatch` 저장소 선택
+4. Root Directory: `backend` 설정
+5. 환경변수 추가:
+   ```
+   DATABASE_URL=postgresql://...
+   REDIS_URL=redis://...
+   JWT_SECRET=your-secret-key
+   JWT_REFRESH_SECRET=your-refresh-secret
+   TOSS_CLIENT_KEY=your-toss-key
+   TOSS_SECRET_KEY=your-toss-secret
+   ```
+6. Deploy 클릭
+7. Settings → Generate Domain으로 API URL 생성
+8. 토큰 발급: Account Settings → Tokens → `RAILWAY_TOKEN` 복사
+
+### 2단계: Vercel 설정 (Admin)
+
+1. https://vercel.com 가입 (GitHub 연동)
+2. "Add New Project" → `josens83/DayMatch` 선택
+3. Root Directory: `admin` 설정
+4. Framework Preset: `Vite` 선택
+5. Environment Variables:
+   ```
+   VITE_API_URL=https://your-railway-url.railway.app
+   ```
+6. Deploy 클릭
+7. Settings → Project ID, Org ID 복사
+
+### 3단계: Expo 설정 (Mobile)
+
+1. https://expo.dev 가입
+2. 프로젝트 생성: `daymatch`
+3. Access Token 발급: Account Settings → Access Tokens
+4. EAS Build 자동 실행됨
+
+### 4단계: GitHub Secrets 설정
+
+Repository → Settings → Secrets and variables → Actions에서 추가:
+
+```
+RAILWAY_TOKEN=your-railway-token
+VERCEL_TOKEN=your-vercel-token
+VERCEL_ORG_ID=your-org-id
+VERCEL_PROJECT_ID=your-project-id
+VITE_API_URL=https://your-api.railway.app
+EXPO_TOKEN=your-expo-token
+```
+
+### 5단계: 자동 배포 확인
+
+main 브랜치에 push하면 자동으로:
+- Backend → Railway 배포
+- Admin → Vercel 배포
+- Mobile → EAS Build 시작
+
+---
+
 ## 📋 배포 전 체크리스트
 
 ### 1. 외부 서비스 계정 생성
