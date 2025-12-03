@@ -19,7 +19,7 @@ export default function Users() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const [page, setPage] = useState(1);
+  const [page, _setPage] = useState(1);
 
   useEffect(() => {
     loadUsers();

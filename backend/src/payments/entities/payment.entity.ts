@@ -78,10 +78,10 @@ export class Payment {
   refundedAt: Date;
 
   @Column({ name: 'receipt_url', length: 500, nullable: true })
-  receiptUrl: string;
+  receiptUrl?: string;
 
   @Column({ name: 'refund_reason', length: 500, nullable: true })
-  refundReason: string;
+  refundReason?: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -1,14 +1,19 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ConfirmPaymentDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Toss Payments에서 발급한 paymentKey' })
   @IsString()
   @IsNotEmpty()
-  pgTid: string;
+  paymentKey: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: '주문 ID' })
   @IsString()
   @IsNotEmpty()
-  paymentMethod: string;
+  orderId: string;
+
+  @ApiProperty({ description: '결제 금액' })
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
 }

@@ -192,9 +192,9 @@ export class MatchesService {
     }
 
     // Check cancellation policy (24 hours before work date)
-    const scheduledDate = match.job?.scheduledDate;
-    if (scheduledDate) {
-      const workDate = new Date(scheduledDate);
+    const jobWorkDate = match.job?.workDate;
+    if (jobWorkDate) {
+      const workDate = new Date(jobWorkDate);
       const now = new Date();
       const hoursUntilWork =
         (workDate.getTime() - now.getTime()) / (1000 * 60 * 60);

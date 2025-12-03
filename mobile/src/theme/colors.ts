@@ -16,6 +16,7 @@ export const colors = {
   info: '#3B82F6',
 
   // Gray scale
+  gray: '#6B7280',
   gray50: '#F9FAFB',
   gray100: '#F3F4F6',
   gray200: '#E5E7EB',

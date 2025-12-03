@@ -128,7 +128,7 @@ export class NotificationsService {
 
     await this.pushService.sendToDevice(user.deviceToken, {
       title: notification.title,
-      body: notification.body,
+      body: notification.body || '',
       data: {
         notificationId: notification.id,
         type: notification.type,
@@ -148,7 +148,7 @@ export class NotificationsService {
     });
 
     const deviceTokens = users
-      .filter((user) => user.deviceToken)
+      .filter((user): user is User & { deviceToken: string } => !!user.deviceToken)
       .map((user) => user.deviceToken);
 
     if (deviceTokens.length === 0) {
@@ -157,7 +157,7 @@ export class NotificationsService {
 
     const result = await this.pushService.sendToMultipleDevices(deviceTokens, {
       title: notificationData.title,
-      body: notificationData.body,
+      body: notificationData.body || '',
       data: {
         type: notificationData.type,
         referenceType: notificationData.referenceType || '',

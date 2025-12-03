@@ -57,6 +57,21 @@ export const typography = {
     lineHeight: lineHeight.lg,
     fontWeight: fontWeight.semiBold,
   },
+  subtitle1: {
+    fontSize: fontSize.lg,
+    lineHeight: lineHeight.lg,
+    fontWeight: fontWeight.medium,
+  },
+  subtitle2: {
+    fontSize: fontSize.base,
+    lineHeight: lineHeight.base,
+    fontWeight: fontWeight.medium,
+  },
+  body: {
+    fontSize: fontSize.base,
+    lineHeight: lineHeight.base,
+    fontWeight: fontWeight.regular,
+  },
   body1: {
     fontSize: fontSize.base,
     lineHeight: lineHeight.base,

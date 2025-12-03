@@ -44,12 +44,7 @@ export class PaymentsController {
     @CurrentUser() user: User,
     @Body() confirmDto: ConfirmPaymentDto,
   ) {
-    return this.paymentsService.confirm(
-      id,
-      user.id,
-      confirmDto.pgTid,
-      confirmDto.paymentMethod,
-    );
+    return this.paymentsService.confirm(id, user.id, confirmDto);
   }
 
   @Get(':id')

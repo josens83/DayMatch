@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChatRoom } from './entities/chat-room.entity';
 import { Message, MessageType } from './entities/message.entity';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ChatsService {
@@ -11,7 +12,17 @@ export class ChatsService {
     private chatRoomRepository: Repository<ChatRoom>,
     @InjectRepository(Message)
     private messageRepository: Repository<Message>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
+
+  async getSenderName(senderId: string): Promise<string> {
+    const user = await this.userRepository.findOne({
+      where: { id: senderId },
+      select: ['name'],
+    });
+    return user?.name || '알 수 없는 사용자';
+  }
 
   async createRoom(
     jobId: string,

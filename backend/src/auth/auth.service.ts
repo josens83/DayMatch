@@ -16,12 +16,12 @@ import { RedisService } from '../config/redis.config';
 import { SmsService } from '../common/services/sms.service';
 import { LoggerService } from '../common/logger/logger.service';
 
-interface Tokens {
+export interface Tokens {
   accessToken: string;
   refreshToken: string;
 }
 
-interface LoginResult extends Tokens {
+export interface LoginResult extends Tokens {
   user: Partial<User>;
 }
 
@@ -155,7 +155,7 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    await this.userRepository.update(userId, { refreshToken: null });
+    await this.userRepository.update(userId, { refreshToken: undefined });
     await this.redisService.deleteSession(userId);
     this.logger.log(`User logged out: ${userId}`, 'AuthService');
   }
@@ -163,9 +163,9 @@ export class AuthService {
   async sendVerificationCode(phone: string): Promise<{ message: string }> {
     // Check rate limit (max 5 requests per hour)
     const rateLimitKey = `sms_rate:${phone}`;
-    const rateCount = await this.redisService.get(rateLimitKey);
+    const rateCount = await this.redisService.get<string>(rateLimitKey);
 
-    if (rateCount && parseInt(rateCount) >= 5) {
+    if (rateCount && parseInt(rateCount, 10) >= 5) {
       throw new BadRequestException('인증번호 요청 횟수를 초과했습니다. 1시간 후 다시 시도해주세요.');
     }
 
@@ -176,14 +176,14 @@ export class AuthService {
     await this.redisService.setVerificationCode(phone, code);
 
     // Increment rate limit counter
-    const currentCount = parseInt(rateCount || '0');
+    const currentCount = parseInt(rateCount || '0', 10);
     await this.redisService.set(rateLimitKey, (currentCount + 1).toString(), 3600);
 
     // Send SMS
     const sent = await this.smsService.sendVerificationCode(phone, code);
 
     if (!sent) {
-      this.logger.error('SMS send failed', null, 'AuthService');
+      this.logger.error('SMS send failed', 'AuthService');
       throw new BadRequestException('인증번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.');
     }
 

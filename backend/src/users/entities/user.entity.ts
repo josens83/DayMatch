@@ -111,10 +111,10 @@ export class User {
 
   @Column({ name: 'refresh_token', nullable: true })
   @Exclude()
-  refreshToken: string;
+  refreshToken?: string;
 
   @Column({ name: 'device_token', nullable: true })
-  deviceToken: string;
+  deviceToken?: string;
 
   @Column({ name: 'device_type', nullable: true })
   deviceType: 'ios' | 'android';

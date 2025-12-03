@@ -17,7 +17,7 @@ import { LoggerService } from '../common/logger/logger.service';
 
 const PLATFORM_FEE_RATE = 0.1; // 10%
 
-interface PreparePaymentResult {
+export interface PreparePaymentResult {
   payment: Payment;
   clientKey: string;
   orderId: string;

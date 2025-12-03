@@ -75,4 +75,13 @@ export class Match {
 
   @Column({ name: 'completed_at', type: 'timestamp', nullable: true })
   completedAt: Date;
+
+  @Column({ name: 'cancelled_by', type: 'uuid', nullable: true })
+  cancelledBy: string;
+
+  @Column({ name: 'cancelled_at', type: 'timestamp', nullable: true })
+  cancelledAt: Date;
+
+  @Column({ name: 'cancel_reason', type: 'text', nullable: true })
+  cancelReason?: string;
 }

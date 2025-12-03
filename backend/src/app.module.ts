@@ -68,10 +68,12 @@ import { HealthController } from './health.controller';
     // Rate Limiting
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ([{
-        ttl: configService.get('throttle.ttl') * 1000,
-        limit: configService.get('throttle.limit'),
-      }]),
+      useFactory: (configService: ConfigService) => ({
+        throttlers: [{
+          ttl: configService.get('throttle.ttl', 60) * 1000,
+          limit: configService.get('throttle.limit', 100),
+        }],
+      }),
       inject: [ConfigService],
     }),
 

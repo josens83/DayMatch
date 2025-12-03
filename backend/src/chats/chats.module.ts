@@ -7,10 +7,11 @@ import { ChatsService } from './chats.service';
 import { ChatsGateway } from './chats.gateway';
 import { ChatRoom } from './entities/chat-room.entity';
 import { Message } from './entities/message.entity';
+import { User } from '../users/entities/user.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ChatRoom, Message]),
+    TypeOrmModule.forFeature([ChatRoom, Message, User]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

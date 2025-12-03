@@ -128,7 +128,7 @@ export class UsersService {
     // Only clear if the token matches (to avoid race conditions with multiple devices)
     if (user.deviceToken === token) {
       await this.userRepository.update(userId, {
-        deviceToken: null,
+        deviceToken: undefined,
       });
     }
   }

@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { S3Service } from '../common/services/s3.service';
 import { LoggerService } from '../common/logger/logger.service';
 
-interface UploadResult {
+export interface UploadResult {
   url: string;
   key: string;
   thumbnailUrl?: string;

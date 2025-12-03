@@ -77,16 +77,34 @@ export class RedisService {
   }
 
   // Session management
-  async setUserSession(userId: string, sessionData: any, ttlSeconds = 86400): Promise<void> {
+  async setSession(userId: string, sessionData: any, ttlSeconds = 86400): Promise<void> {
     await this.set(`session:${userId}`, sessionData, ttlSeconds);
+  }
+
+  async setUserSession(userId: string, sessionData: any, ttlSeconds = 86400): Promise<void> {
+    await this.setSession(userId, sessionData, ttlSeconds);
   }
 
   async getUserSession(userId: string): Promise<any> {
     return this.get(`session:${userId}`);
   }
 
-  async deleteUserSession(userId: string): Promise<void> {
+  async deleteSession(userId: string): Promise<void> {
     await this.del(`session:${userId}`);
+  }
+
+  async deleteUserSession(userId: string): Promise<void> {
+    await this.deleteSession(userId);
+  }
+
+  // Verification code
+  async verifyCode(phone: string, code: string): Promise<boolean> {
+    const storedCode = await this.getVerificationCode(phone);
+    if (storedCode === code) {
+      await this.deleteVerificationCode(phone);
+      return true;
+    }
+    return false;
   }
 
   // Rate limiting support

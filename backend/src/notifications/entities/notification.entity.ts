@@ -13,11 +13,15 @@ export enum NotificationType {
   APPLICATION_ACCEPTED = 'application_accepted',
   APPLICATION_REJECTED = 'application_rejected',
   MATCH_CREATED = 'match_created',
+  MATCH_STARTED = 'match_started',
+  MATCH_COMPLETED = 'match_completed',
+  MATCH_CANCELLED = 'match_cancelled',
   WORK_STARTED = 'work_started',
   WORK_COMPLETED = 'work_completed',
   PAYMENT_RECEIVED = 'payment_received',
   REVIEW_RECEIVED = 'review_received',
   CHAT_MESSAGE = 'chat_message',
+  NEW_MESSAGE = 'new_message',
   SYSTEM = 'system',
 }
 
