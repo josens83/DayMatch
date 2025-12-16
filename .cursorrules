@@ -1,0 +1,82 @@
+# Cursor Rules for DayMatch
+
+## Project Context
+DayMatch is a short-term job matching platform (단기 알바 매칭 플랫폼) connecting employers with workers for daily/temporary jobs.
+
+## Tech Stack
+- **Backend**: NestJS 10.x + TypeScript + TypeORM + PostgreSQL
+- **Mobile**: React Native (Expo SDK 50+) + Redux Toolkit
+- **Admin**: React + Vite + Tailwind CSS
+- **Infrastructure**: Railway (Backend), Vercel (Admin), EAS (Mobile)
+
+## Code Style
+
+### TypeScript
+- Use strict mode (strict: true)
+- Explicit return types on all functions
+- No `any` - use `unknown` with type guards
+- Use absolute imports with @/ prefix
+
+### NestJS Backend
+- Controller → Service → Repository pattern
+- All DTOs must have class-validator decorators
+- Swagger decorators on all endpoints
+- Use Guards for auth/authz
+
+### React/React Native
+- Functional components with hooks only
+- Redux Toolkit with createSlice
+- RTK Query for API calls
+
+## Naming Conventions
+- Files: `kebab-case.ts` or `PascalCase.tsx`
+- Classes: `PascalCase`
+- Functions/Variables: `camelCase`
+- Constants: `UPPER_SNAKE_CASE`
+- DB Columns: `snake_case`
+
+## File Structure
+```
+backend/src/
+├── auth/           # Authentication (JWT, OAuth)
+├── users/          # User management
+├── jobs/           # Job CRUD
+├── applications/   # Application management
+├── matches/        # Match management
+├── payments/       # Payment (TossPayments)
+├── chats/          # Real-time chat
+├── notifications/  # Push notifications
+├── reviews/        # Reviews/Ratings
+└── common/         # Shared utilities
+
+mobile/src/
+├── screens/        # Screen components
+├── components/     # Reusable components
+├── store/          # Redux store
+├── services/       # API services
+└── hooks/          # Custom hooks
+
+admin/src/
+├── pages/          # Page components
+├── components/     # UI components
+└── services/       # API services
+```
+
+## Don't
+- Don't use class components in React
+- Don't use CSS modules (use Tailwind)
+- Don't add unnecessary dependencies
+- Don't commit .env files
+- Don't use `any` type
+
+## Commands
+```bash
+npm run verify      # typecheck + lint + build
+npm run typecheck   # TypeScript check
+npm run lint        # ESLint check
+```
+
+## Important Files
+- `CLAUDE.md` - Full project context
+- `docs/adr/` - Architecture decisions
+- `docs/TROUBLESHOOTING.md` - Common issues

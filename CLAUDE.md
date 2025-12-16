@@ -239,12 +239,71 @@ FIREBASE_CLIENT_EMAIL=your-client-email
 
 ---
 
+## 명령어 레퍼런스
+
+### 개발 명령어
+```bash
+# 루트에서 실행
+npm run typecheck        # 전체 TypeScript 검사
+npm run lint             # 전체 ESLint 검사
+npm run build            # 전체 빌드
+npm run verify           # typecheck + lint + build
+
+# Backend
+cd backend
+npm run start:dev        # 개발 서버 (http://localhost:3000)
+npm run test             # 단위 테스트
+npm run test:e2e         # E2E 테스트
+npm run migration:run    # 마이그레이션 실행
+
+# Admin
+cd admin
+npm run dev              # 개발 서버 (http://localhost:5173)
+npm run build            # 프로덕션 빌드
+
+# Mobile
+cd mobile
+npx expo start           # Expo 개발 서버
+```
+
+---
+
 ## AI 어시스턴트 가이드라인
+
+### Explore → Plan → Code → Commit 워크플로우
+
+이 프로젝트에서 AI와 협업할 때 권장하는 워크플로우:
+
+```
+1️⃣ EXPLORE: "src/payments/ 구조를 분석해줘. 코드 작성은 하지 마."
+      ↓
+2️⃣ PLAN: "환불 기능 추가 계획을 세워줘. 승인 후 진행할게."
+      ↓
+3️⃣ CODE: "계획대로 구현해줘. 단계별로 완료 후 알려줘."
+      ↓
+4️⃣ COMMIT: "변경사항 요약과 커밋 메시지 작성해줘."
+```
+
+### 효과적인 프롬프트 예시
+
+**좋은 예시:**
+```
+backend/src/payments/payments.service.ts의 processPayment 함수에
+토스페이먼츠 API 실패 시 재시도 로직을 추가해줘.
+최대 3회, 지수 백오프 방식으로.
+기존 에러 핸들링 패턴(common/exceptions/)을 따라줘.
+```
+
+**피해야 할 예시:**
+```
+결제 기능 고쳐줘 (어떤 파일? 어떤 문제?)
+```
 
 ### 새 세션 시작 시
 1. 이 CLAUDE.md 파일 먼저 읽기
-2. 현재 작업 중인 기능 파악
-3. 관련 파일들 확인 후 작업 시작
+2. `docs/session-notes/` 폴더의 최근 세션 노트 확인
+3. 현재 작업 중인 기능 파악
+4. 관련 파일들 확인 후 작업 시작
 
 ### 코드 수정 시
 1. 기존 패턴과 컨벤션 따르기
@@ -253,7 +312,43 @@ FIREBASE_CLIENT_EMAIL=your-client-email
 4. DEPLOYMENT.md의 배포 설정 참고
 
 ### 새 기능 추가 시
-1. ADR 문서 먼저 검토
+1. ADR 문서 먼저 검토 (`docs/adr/`)
 2. 기존 모듈 구조 따르기
 3. DTO, Entity, Service, Controller 순서로 구현
 4. Swagger 문서화 포함
+
+### 세션 종료 전 필수 작업
+세션 종료 전에 다음 정보를 요청하세요:
+```
+이번 대화에서 작업한 내용을 정리해줘:
+- 완료된 작업
+- 주요 결정사항
+- 변경된 파일
+- 미해결 이슈
+- 다음 할 일
+```
+
+결과를 `docs/session-notes/YYYY-MM-DD-주제.md`에 저장
+
+---
+
+## 컨텍스트 한계 증상
+
+다음 증상이 나타나면 **새 세션 시작**을 권장:
+- AI가 이전에 논의한 내용을 다시 물어봄
+- 프로젝트 구조나 컨벤션을 갑자기 잊어버림
+- 같은 실수를 반복함
+- "긴 대화는 사용량 제한에 더 빨리 도달합니다" 경고
+
+---
+
+## 관련 문서
+
+| 문서 | 설명 |
+|------|------|
+| `DEPLOYMENT.md` | 배포 가이드 |
+| `docs/TROUBLESHOOTING.md` | 문제 해결 가이드 |
+| `docs/TYPESCRIPT-GUIDE.md` | TypeScript 배포 가이드 |
+| `docs/TYPEORM-GUIDE.md` | TypeORM 최적화 가이드 |
+| `docs/adr/` | 아키텍처 결정 기록 |
+| `docs/session-notes/` | 세션별 작업 기록 |
