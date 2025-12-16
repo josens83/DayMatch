@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Pre-commit 검증 시작..."
+
+# TypeScript 타입 체크
+echo "📝 TypeScript 타입 체크 중..."
+cd backend && npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "❌ Backend TypeScript 오류 발견. 커밋 중단."
+  exit 1
+fi
+cd ..
+
+cd admin && npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "❌ Admin TypeScript 오류 발견. 커밋 중단."
+  exit 1
+fi
+cd ..
+
+echo "✅ TypeScript 검증 완료"
+
+# lint-staged 실행
+npx lint-staged
+
+echo "🎉 Pre-commit 검증 완료!"

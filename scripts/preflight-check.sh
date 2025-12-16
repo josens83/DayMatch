@@ -53,7 +53,29 @@ fi
 
 echo ""
 
-# 2. 빌드 테스트
+# 2. TypeScript 타입 체크
+echo "📝 TypeScript 타입 체크:"
+echo ""
+
+cd backend
+if npx tsc --noEmit 2>/dev/null; then
+  check_pass "Backend TypeScript 타입 체크 통과"
+else
+  check_fail "Backend TypeScript 타입 오류"
+fi
+cd ..
+
+cd admin
+if npx tsc --noEmit 2>/dev/null; then
+  check_pass "Admin TypeScript 타입 체크 통과"
+else
+  check_fail "Admin TypeScript 타입 오류"
+fi
+cd ..
+
+echo ""
+
+# 3. 빌드 테스트
 echo "🔨 빌드 테스트:"
 echo ""
 
