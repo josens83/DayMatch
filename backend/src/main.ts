@@ -106,8 +106,8 @@ async function bootstrap() {
   // Graceful shutdown
   app.enableShutdownHooks();
 
-  const port = configService.get('app.port') || 3000;
-  await app.listen(port);
+  const port = configService.get('app.port') || process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0'); // Railway requires 0.0.0.0 binding
 
   logger.log(`Application is running on: http://localhost:${port}`, 'Bootstrap');
   logger.log(`Environment: ${configService.get('app.env')}`, 'Bootstrap');

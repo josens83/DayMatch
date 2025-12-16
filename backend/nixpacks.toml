@@ -1,0 +1,27 @@
+# Nixpacks 빌드 설정
+# Railway에서 사용하는 빌드 시스템
+# https://nixpacks.com/docs/configuration/file
+
+# 빌드 환경 설정
+[phases.setup]
+nixPkgs = ["nodejs_20", "npm"]
+# TypeORM/Prisma에 필요한 OpenSSL
+aptPkgs = ["openssl", "libssl-dev", "ca-certificates"]
+
+# 의존성 설치
+[phases.install]
+cmds = ["npm ci --production=false"]
+
+# 빌드 단계
+[phases.build]
+cmds = [
+  "npm run build"
+]
+
+# 시작 명령어
+[start]
+cmd = "npm run start:prod"
+
+# 환경변수 기본값
+[variables]
+NODE_ENV = "production"

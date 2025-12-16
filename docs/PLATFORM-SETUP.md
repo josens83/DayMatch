@@ -287,3 +287,109 @@ Repository → Settings → Secrets and variables → Actions
 |------|------|---------------------|
 | 빌드 | 30/월 | 무제한 |
 | 업데이트 | 1000/월 | 무제한 |
+
+---
+
+## 트러블슈팅 가이드
+
+### Vercel 흔한 오류
+
+| 오류 | 원인 | 해결 |
+|------|------|------|
+| `FUNCTION_INVOCATION_TIMEOUT` | 함수 실행 시간 초과 | `maxDuration` 증가 또는 로직 최적화 |
+| `EDGE_FUNCTION_INVOCATION_FAILED` | Edge 런타임 호환성 문제 | Node.js API 사용 확인, runtime 변경 |
+| `BUILD_FAILED` | 빌드 명령어 실패 | 로컬에서 `npm run build` 테스트 |
+| `504 Gateway Timeout` | 서버리스 함수 타임아웃 | DB 쿼리 최적화, Connection Pooling |
+
+### Railway 흔한 오류
+
+| 오류 | 원인 | 해결 |
+|------|------|------|
+| `Application failed to respond` | 포트 바인딩 문제 | `process.env.PORT` 사용, `0.0.0.0` 바인딩 |
+| `Build failed: openssl` | OpenSSL 누락 | `nixpacks.toml`에 aptPkgs 추가 |
+| `Connection refused` | DB 연결 실패 | 환경변수 확인, Private URL 사용 |
+| `Health check failed` | 헬스체크 실패 | `/health` 엔드포인트 구현 확인 |
+
+### EAS 흔한 오류
+
+| 오류 | 원인 | 해결 |
+|------|------|------|
+| `Build failed: Gradle` | Android 빌드 설정 문제 | `android/` 폴더 정리, Gradle 버전 확인 |
+| `Missing signing credentials` | iOS 인증서 없음 | EAS 자동 관리 설정 또는 수동 업로드 |
+| `API_URL not set` | 환경변수 누락 | `eas.json`의 env 섹션 확인 |
+
+---
+
+## 배포 전 체크리스트
+
+### Railway (Backend)
+```
+□ railway link로 프로젝트 연결
+□ PostgreSQL 서비스 추가
+□ Redis 서비스 추가 (필요시)
+□ 환경변수 설정
+  - DATABASE_URL = ${{Postgres.DATABASE_PRIVATE_URL}}
+  - REDIS_URL = ${{Redis.REDIS_PRIVATE_URL}}
+  - JWT_SECRET, JWT_REFRESH_SECRET
+  - TOSS_CLIENT_KEY, TOSS_SECRET_KEY
+  - FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY
+□ main.ts에서 0.0.0.0 바인딩 확인
+□ /health 엔드포인트 동작 확인
+□ railway up으로 배포
+□ railway logs로 로그 확인
+```
+
+### Vercel (Admin)
+```
+□ vercel link로 프로젝트 연결
+□ 환경변수 설정
+  - VITE_API_URL = Railway URL
+□ vercel.json 설정 확인
+□ vercel --prod로 프로덕션 배포
+```
+
+### EAS (Mobile)
+```
+□ expo login으로 로그인
+□ eas.json 설정 확인
+□ app.json의 bundleIdentifier/package 설정
+□ eas build --platform android --profile preview (테스트)
+□ eas build --platform all --profile production (프로덕션)
+```
+
+---
+
+## 배포 명령어 레퍼런스
+
+```bash
+# ─────────────────────────────────────────────────────────
+# Vercel CLI
+# ─────────────────────────────────────────────────────────
+npm install -g vercel     # CLI 설치
+vercel link               # 프로젝트 연결
+vercel pull               # 환경변수 가져오기
+vercel build              # 로컬 빌드 테스트
+vercel                    # 프리뷰 배포
+vercel --prod             # 프로덕션 배포
+
+# ─────────────────────────────────────────────────────────
+# Railway CLI
+# ─────────────────────────────────────────────────────────
+npm install -g @railway/cli  # CLI 설치
+railway login                # 로그인
+railway link                 # 프로젝트 연결
+railway run npm run dev      # Railway 환경으로 로컬 실행
+railway up                   # 배포
+railway logs                 # 로그 확인
+
+# ─────────────────────────────────────────────────────────
+# EAS CLI
+# ─────────────────────────────────────────────────────────
+npm install -g eas-cli    # CLI 설치
+eas login                 # 로그인
+eas build:configure       # 초기 설정
+eas build --platform android --profile preview  # Android 프리뷰
+eas build --platform ios --profile preview      # iOS 프리뷰
+eas build --platform all --profile production   # 프로덕션 빌드
+eas submit                # 스토어 제출
+```

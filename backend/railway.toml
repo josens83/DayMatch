@@ -1,8 +1,20 @@
+# Railway 배포 설정
+# https://docs.railway.app/reference/config-as-code
+
 [build]
 builder = "nixpacks"
+buildCommand = "npm run build"
 
 [deploy]
+startCommand = "npm run start:prod"
 healthcheckPath = "/health"
-healthcheckTimeout = 100
+healthcheckTimeout = 300
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 5
+numReplicas = 1
+
+# 환경변수 참고 (Railway Dashboard에서 설정)
+# DATABASE_URL = ${{Postgres.DATABASE_PRIVATE_URL}}
+# REDIS_URL = ${{Redis.REDIS_PRIVATE_URL}}
+# NODE_ENV = production
+# PORT = Railway가 자동 할당
