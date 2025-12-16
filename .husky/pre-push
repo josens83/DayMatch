@@ -1,0 +1,71 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Pre-push 검증 시작..."
+echo "   (원격 저장소에 푸시하기 전 최종 검증)"
+
+# 현재 브랜치 확인
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+echo "📌 현재 브랜치: $current_branch"
+
+# main/master 브랜치 직접 푸시 경고
+if [ "$current_branch" = "main" ] || [ "$current_branch" = "master" ]; then
+  echo "⚠️  경고: main/master 브랜치에 직접 푸시하려고 합니다."
+  echo "   PR을 통한 머지를 권장합니다."
+fi
+
+# 전체 TypeScript 타입 체크
+echo ""
+echo "📝 TypeScript 전체 타입 체크..."
+
+cd backend
+if ! npx tsc --noEmit; then
+  echo "❌ Backend TypeScript 오류. 푸시 중단."
+  exit 1
+fi
+cd ..
+
+cd admin
+if ! npx tsc --noEmit; then
+  echo "❌ Admin TypeScript 오류. 푸시 중단."
+  exit 1
+fi
+cd ..
+
+echo "✅ TypeScript 검증 완료"
+
+# ESLint 전체 검사
+echo ""
+echo "🔍 ESLint 전체 검사..."
+
+cd backend
+if ! npm run lint 2>/dev/null; then
+  echo "❌ Backend ESLint 오류. 푸시 중단."
+  exit 1
+fi
+cd ..
+
+cd admin
+if ! npm run lint 2>/dev/null; then
+  echo "❌ Admin ESLint 오류. 푸시 중단."
+  exit 1
+fi
+cd ..
+
+echo "✅ ESLint 검증 완료"
+
+# 빌드 테스트 (선택적)
+echo ""
+echo "🏗️  빌드 테스트 중..."
+
+cd backend
+if ! npm run build 2>/dev/null; then
+  echo "❌ Backend 빌드 실패. 푸시 중단."
+  exit 1
+fi
+cd ..
+
+echo "✅ 빌드 검증 완료"
+
+echo ""
+echo "🎉 Pre-push 검증 모두 통과! 푸시를 진행합니다."

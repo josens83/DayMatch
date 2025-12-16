@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "📝 커밋 메시지 검증 중..."
+
+npx --no -- commitlint --edit ${1}
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ 커밋 메시지가 Conventional Commits 규칙을 따르지 않습니다."
+  echo ""
+  echo "올바른 형식: <type>: <description>"
+  echo ""
+  echo "예시:"
+  echo "  feat: 사용자 인증 기능 추가"
+  echo "  fix: 로그인 오류 수정"
+  echo "  docs: README 업데이트"
+  echo "  refactor: 결제 모듈 리팩토링"
+  echo ""
+  echo "허용되는 type: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+  echo ""
+  exit 1
+fi
+
+echo "✅ 커밋 메시지 검증 완료!"
