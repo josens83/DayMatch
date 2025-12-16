@@ -1,5 +1,8 @@
 # DayMatch - 단기 알바 매칭 플랫폼
 
+![CI](https://github.com/josens83/DayMatch/actions/workflows/ci.yml/badge.svg)
+![Deploy](https://github.com/josens83/DayMatch/actions/workflows/deploy.yml/badge.svg)
+
 단기/일회성 도움이 필요한 사람(의뢰자)과 시간과 능력이 있는 사람(헬퍼)을 실시간으로 연결하는 플랫폼입니다.
 
 ## 서비스 카테고리
